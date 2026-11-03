@@ -22,10 +22,15 @@ An interactive 3D human muscular system explorer built with [Three.js](https://t
 
 | Input | Action |
 |---|---|
-| Left-click + drag | Rotate |
-| Scroll wheel | Zoom (toward cursor) |
-| Right-click + drag | Pan |
-| Click a muscle | Show info panel |
+| Left-click + drag / one-finger drag | Rotate |
+| Scroll wheel / pinch | Zoom (toward cursor) |
+| Right-click + drag / two-finger drag | Pan |
+| Click a muscle or bone | Show info panel |
+| `/` | Focus search |
+| `1` `2` `3` `4` | Front / back / left / right view |
+| `F` / `H` | Zoom to / hide the selected part |
+| `Esc` | Deselect |
+| `R` | Reset everything |
 
 ## Getting Started
 
@@ -39,18 +44,27 @@ An interactive 3D human muscular system explorer built with [Three.js](https://t
 git clone https://github.com/JohanBellander/BodyExplorer.git
 cd BodyExplorer
 npm install
-npx vite --host --port 4000
+npm run dev
 ```
 
 Open [http://localhost:4000](http://localhost:4000) in your browser.
 
+### Checks and Tests
+
+```bash
+npm run check      # typecheck, lint, format check, unit tests
+npm run test:e2e   # browser smoke test (uses your installed Chrome)
+```
+
 ### Build for Production
 
 ```bash
-npm run build
+npm run build      # output in dist/
+npm run preview    # serve the build locally
 ```
 
-The output is written to `dist/`.
+The app is served from `/` by default. Set `BASE_PATH` to host it under a sub-path, e.g.
+`BASE_PATH=/BodyExplorer/ npm run build` for GitHub Pages.
 
 ## Tech Stack
 
@@ -71,26 +85,7 @@ All meshes are decimated to ~4000 faces each for real-time performance. The two 
 
 ## Project Structure
 
-```
-├── index.html              # App layout and UI
-├── src/
-│   ├── main.js             # Scene, camera, interaction, UI controls
-│   ├── bodyBuilder.js      # GLB loading, coordinate transforms, materials
-│   ├── muscleData.js       # Muscle groups, classification, anatomy database
-│   └── styles.css          # Dark theme styling
-├── public/
-│   ├── anatomy.glb         # 467 muscle/tendon meshes (24 MB)
-│   ├── skeleton.glb        # 201 bone meshes (9.4 MB)
-│   └── mesh_mapping.json   # Mesh metadata and data source mapping
-├── raw_models/             # Processing scripts (data not included in repo)
-│   ├── find_muscles.py     # Discovers muscle OBJ files from BodyParts3D
-│   ├── filter_muscles.py   # Filters to relevant anatomical structures
-│   ├── decimate_anatomy.py # Decimates and merges BP3D + Z-Anatomy into anatomy.glb
-│   ├── find_bones.py       # Discovers bone OBJ files
-│   └── export_z_anatomy.py # Blender script to export Z-Anatomy meshes
-└── .github/workflows/
-    └── deploy.yml          # GitHub Pages deployment workflow
-```
+See [AGENTS.md](AGENTS.md#layout) for the source layout and [raw_models/README.md](raw_models/README.md) for the asset pipeline.
 
 ## Attribution
 

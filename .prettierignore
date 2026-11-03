@@ -1,0 +1,11 @@
+dist/
+node_modules/
+raw_models/
+public/
+package-lock.json
+test-results/
+playwright-report/
+*.md
+.agents/
+.codex/
+.claude/

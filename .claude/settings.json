@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run check:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run lint:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run format:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run test:e2e:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx playwright test:*)",
+      "Bash(npx tsc --noEmit:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .agents/hooks/format-edited.mjs"
+          }
+        ]
+      }
+    ]
+  }
+}
