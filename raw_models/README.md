@@ -17,6 +17,7 @@ Builds `public/anatomy.glb`, `public/skeleton.glb` and `public/mesh_mapping.json
 - [uv](https://docs.astral.sh/uv/) (installs Python 3.13 and the pinned packages from `pyproject.toml` / `uv.lock`)
 - [Blender](https://www.blender.org/) 4.x or 5.x, only for step 2
 - Node/npm (repo root `npm install`), for the final glTF Transform compression
+- Linux only: `libopengl0` (pymeshlab's filter plugins need it, and silently fail to load without it)
 
 ## Build
 
