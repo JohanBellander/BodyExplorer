@@ -25,6 +25,6 @@ jobs:
         working-directory: raw_models
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3
       - run: uv run pytest
       - run: uv run ruff check pipeline tests export_z_anatomy.py
