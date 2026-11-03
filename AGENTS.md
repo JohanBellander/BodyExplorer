@@ -12,13 +12,13 @@ pick, search, filter, hide and colour structures.
 
 ## Layout
 - `src/main.ts` — bootstrap: stage, loader, controller, UI.
-- `src/scene/` — `Stage` (renderer, camera, lights, render-on-demand loop), `CameraRig` (views, focus, animation).
+- `src/scene/` — `Stage` (renderer, image-based lighting, shadows, post-processing: GTAO, selection outline, Neutral tone mapping; render-on-demand loop), `CameraRig` (views, focus, animation).
 - `src/model/` — `loadBody` (GLB → typed `PartMesh`es + BVH), `materials` (`MaterialLibrary.resolve` derives a mesh's material from state), `names` (display names), `types`.
 - `src/app/` — `BodyController` (single owner of selection/visibility/colour state; UI subscribes to it), `search`.
 - `src/interaction/picking.ts` — hover/click raycasting; click vs drag threshold.
 - `src/ui/` — DOM panels; build nodes with `el()` from `ui/dom.ts`, never `innerHTML`.
 - `src/data/` — muscle groups + keyword classifier, anatomy info database.
-- `public/` — shipped assets: `anatomy.glb`, `skeleton.glb`, `mesh_mapping.json`.
+- `public/` — shipped assets: `anatomy.glb`, `skeleton.glb` (Meshopt-compressed, quantized), `mesh_mapping.json`.
 - `raw_models/` — scripts that build the GLBs from the raw datasets (raw data is gitignored; see `raw_models/README.md`).
 - `e2e/` — Playwright tests.
 
@@ -32,7 +32,10 @@ pick, search, filter, hide and colour structures.
 
 ## Conventions
 - All mesh appearance changes go through `BodyController`; never assign `mesh.material` from UI code.
-- Rendering is on demand: after changing anything visible outside the controller, call `stage.invalidate()`.
+- Rendering is on demand: after changing anything visible outside the controller, call `stage.invalidate()`;
+  after showing/hiding meshes call `stage.refreshShadows()` (the shadow map does not auto-update).
+- Ambient occlusion only renders on the frame after the camera stops (it costs ~25 ms on integrated GPUs).
+- Visual changes: run `npx playwright test views` and compare `test-results/views/*.png` before and after.
 - Coverage ratchets in `src/data/meshData.test.ts` (unclassified meshes, missing anatomy info) may only go down.
 - Anatomy facts need a source; don't write origin/insertion/innervation from memory without checking a reference.
 - Mesh data is CC BY-SA (BodyParts3D 2.1 JP, Z-Anatomy 4.0): derived assets keep the same licence and attribution.
@@ -46,6 +49,7 @@ pick, search, filter, hide and colour structures.
 - `BASE_PATH` controls Vite's `base`; asset URLs must use `import.meta.env.BASE_URL`.
 - GLTFLoader turns spaces in node names into underscores; use `normalizeMeshName()` before matching names.
 - BodyParts3D axes are X right-left, Y front-back, Z up (mm); `loadBody` converts to Three.js Y-up scene units.
+- GLBs are quantized (KHR_mesh_quantization); `loadBody` expands attributes to Float32 before baking transforms.
 - `window.bodyExplorer` exposes `{ stage, controller, rig }` for debugging and e2e tests.
 
 ## Agent setup

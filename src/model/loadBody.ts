@@ -83,6 +83,24 @@ function makePart(rawName: string, kind: PartKind, index: number, entry?: MeshMa
   };
 }
 
+/**
+ * Meshopt/quantized GLBs store positions and normals as normalized integers. Transforming those in
+ * place would clamp them to [-1, 1], so expand to Float32 first (the geometry is baked into scene space).
+ */
+function dequantize(geometry: THREE.BufferGeometry): void {
+  for (const name of ['position', 'normal'] as const) {
+    const attr = geometry.getAttribute(name);
+    if (!attr || attr.array instanceof Float32Array) continue;
+    const out = new Float32Array(attr.count * 3);
+    for (let i = 0; i < attr.count; i++) {
+      out[i * 3] = attr.getX(i);
+      out[i * 3 + 1] = attr.getY(i);
+      out[i * 3 + 2] = attr.getZ(i);
+    }
+    geometry.setAttribute(name, new THREE.BufferAttribute(out, 3));
+  }
+}
+
 function toPartMesh(
   src: THREE.Mesh,
   toScene: THREE.Matrix4,
@@ -90,6 +108,7 @@ function toPartMesh(
   material: THREE.Material,
 ): PartMesh {
   const geometry = src.geometry.clone();
+  dequantize(geometry);
   geometry.applyMatrix4(new THREE.Matrix4().multiplyMatrices(toScene, src.matrixWorld));
   if (!geometry.getAttribute('normal')) geometry.computeVertexNormals();
   geometry.computeBoundingBox();
@@ -98,6 +117,9 @@ function toPartMesh(
 
   const mesh = new THREE.Mesh(geometry, material) as unknown as PartMesh;
   mesh.name = part.rawName;
+  // Cast onto the floor only; on-body contact shading comes from ambient occlusion.
+  mesh.castShadow = true;
+  mesh.receiveShadow = false;
   mesh.userData = { part, baseMaterial: material };
   return mesh;
 }
