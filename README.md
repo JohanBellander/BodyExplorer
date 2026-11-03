@@ -8,7 +8,9 @@ An interactive 3D human muscular system explorer built with [Three.js](https://t
 
 - **Photorealistic 3D anatomy** — MRI-based mesh data from BodyParts3D, supplemented by Z-Anatomy meshes for additional muscles
 - **Studio rendering**: image-based lighting, physically based muscle/tendon/bone materials, ambient occlusion, soft floor shadow, selection outline
-- **Compact assets**: Meshopt-compressed models (~8.5 MB, down from 35 MB)
+- **Refined anatomy meshes**: the coarse MRI-derived meshes are cleaned, subdivided, smoothed and re-simplified to a size-aware budget; Z-Anatomy is registered onto BodyParts3D by ICP instead of hand-tuned offsets
+- **Muscle fibre detail**: per-vertex fibre directions (harmonic field) drive procedural striations that follow each muscle's shape
+- **Compact assets**: Meshopt-compressed models (~8.9 MB, down from 35 MB; ~1M triangles, down from 1.6M)
 - **Full skeleton overlay** — 201 bone meshes with adjustable transparency
 - **Click to identify** — click any muscle to see its name, muscle group, type, and links to Wikipedia and Kenhub
 - **Search** — find muscles by name with live search results
@@ -83,7 +85,7 @@ The 3D mesh data comes from two open anatomical datasets:
 | [BodyParts3D](https://lifesciencedb.jp/bp3d/) | 401 | MRI-based anatomical meshes from The Database Center for Life Science |
 | [Z-Anatomy](https://www.z-anatomy.com/) | 66 | Community-built anatomical meshes by Gauthier Kervyn |
 
-All meshes are decimated to ~4000 faces each for real-time performance. The two datasets are spatially aligned using calibrated Y and Z offsets.
+Meshes are processed by the pipeline in [`raw_models/`](raw_models/README.md): cleanup, subdivision + smoothing, size-aware simplification and fibre-field generation. Z-Anatomy is registered onto BodyParts3D with ICP over shared bones and muscles.
 
 ## Project Structure
 

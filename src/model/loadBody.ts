@@ -13,6 +13,9 @@ THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
+/** Per-vertex muscle fibre direction written by the asset pipeline (glTF "_FIBER", lower-cased by GLTFLoader). */
+export const FIBER_ATTRIBUTE = '_fiber';
+
 /** Scene height of the body in world units. */
 export const BODY_HEIGHT = 30;
 
@@ -88,7 +91,7 @@ function makePart(rawName: string, kind: PartKind, index: number, entry?: MeshMa
  * place would clamp them to [-1, 1], so expand to Float32 first (the geometry is baked into scene space).
  */
 function dequantize(geometry: THREE.BufferGeometry): void {
-  for (const name of ['position', 'normal'] as const) {
+  for (const name of ['position', 'normal', FIBER_ATTRIBUTE]) {
     const attr = geometry.getAttribute(name);
     if (!attr || attr.array instanceof Float32Array) continue;
     const out = new Float32Array(attr.count * 3);
@@ -109,7 +112,18 @@ function toPartMesh(
 ): PartMesh {
   const geometry = src.geometry.clone();
   dequantize(geometry);
-  geometry.applyMatrix4(new THREE.Matrix4().multiplyMatrices(toScene, src.matrixWorld));
+  const matrix = new THREE.Matrix4().multiplyMatrices(toScene, src.matrixWorld);
+  geometry.applyMatrix4(matrix);
+  // applyMatrix4 only knows position/normal/tangent; rotate the fibre directions the same way.
+  const fiber = geometry.getAttribute(FIBER_ATTRIBUTE) as THREE.BufferAttribute | undefined;
+  if (fiber) {
+    fiber.applyNormalMatrix(new THREE.Matrix3().getNormalMatrix(matrix));
+    const v = new THREE.Vector3();
+    for (let i = 0; i < fiber.count; i++) {
+      v.fromBufferAttribute(fiber, i).normalize();
+      fiber.setXYZ(i, v.x, v.y, v.z);
+    }
+  }
   if (!geometry.getAttribute('normal')) geometry.computeVertexNormals();
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();

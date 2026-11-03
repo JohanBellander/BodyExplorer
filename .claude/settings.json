@@ -13,7 +13,10 @@
       "Bash(npx playwright test:*)",
       "Bash(npx tsc --noEmit:*)",
       "Bash(npx eslint:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(npm run assets:test:*)",
+      "Bash(uv run pytest:*)",
+      "Bash(uv run ruff:*)"
     ]
   },
   "hooks": {

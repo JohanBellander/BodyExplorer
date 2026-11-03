@@ -17,3 +17,16 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run build
+
+  pipeline:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: raw_models
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3
+      # pymeshlab's filter plugins link against libOpenGL; without it they silently fail to load.
+      - run: sudo apt-get update -q && sudo apt-get install -yq --no-install-recommends libopengl0
+      - run: uv run pytest
+      - run: uv run ruff check pipeline tests export_z_anatomy.py

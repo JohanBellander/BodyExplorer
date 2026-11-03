@@ -16,6 +16,7 @@ const SHOTS: Shot[] = [
   { name: 'torso', pos: [6, 6, 20], target: [0, 5, 0] },
   { name: 'back', pos: [0, 2, -40], target: [0, 2, 0] },
   { name: 'shoulder', pos: [12, 10, 9], target: [4.5, 9, 0] },
+  { name: 'closeup', pos: [5, 9.5, 6.5], target: [2.5, 8, 1] },
   { name: 'knee', pos: [5, -7, 9], target: [1.5, -8, 0] },
   {
     name: 'selected',
