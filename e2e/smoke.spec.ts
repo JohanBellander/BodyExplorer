@@ -20,6 +20,24 @@ test('loads the model, picks a part and shows its info', async ({ page }) => {
     return { muscles: app.controller.body.muscles.length, bones: app.controller.body.bones.length };
   });
   expect(counts.muscles).toBeGreaterThan(400);
+  // Guards against broken geometry transforms (e.g. quantized GLBs being clamped).
+  const height = await page.evaluate(() => {
+    const app = (window as never as { bodyExplorer: { controller: { body: { root: any } } } }).bodyExplorer;
+    const root = app.controller.body.root;
+    const box = new root.position.constructor(); // THREE.Vector3 via an existing instance
+    void box;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    root.traverse((o: any) => {
+      if (!o.isMesh) return;
+      o.geometry.computeBoundingBox();
+      minY = Math.min(minY, o.geometry.boundingBox.min.y);
+      maxY = Math.max(maxY, o.geometry.boundingBox.max.y);
+    });
+    return maxY - minY;
+  });
+  expect(height).toBeGreaterThan(28);
+  expect(height).toBeLessThan(32);
   expect(counts.bones).toBeGreaterThan(150);
 
   await page.screenshot({ path: 'test-results/home.png' });

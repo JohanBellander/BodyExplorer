@@ -14,3 +14,10 @@ bones: `find_bones.py` → `convert_to_glb.py`.
 
 > These scripts still contain absolute paths from the machine they were written on. Making the pipeline
 > reproducible (relative paths, `uv` project, one command) is tracked as Phase 2 of the improvement plan.
+
+The shipped GLBs are then compressed with glTF Transform (lossless for our purposes: 16-bit positions over the
+whole body ≈ 0.03 mm):
+
+```bash
+npx gltf-transform meshopt in.glb public/anatomy.glb --quantization-volume scene --quantize-position 16 --quantize-normal 10
+```

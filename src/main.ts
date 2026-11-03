@@ -11,6 +11,7 @@ import { byId } from './ui/dom';
 import { mountHiddenPanel } from './ui/hiddenPanel';
 import { mountInfoPanel } from './ui/infoPanel';
 import { mountKeyboard } from './ui/keyboard';
+import { mountQualityToggles } from './ui/quality';
 
 const loadingOverlay = byId('loading-overlay');
 const loadingBar = byId('loading-bar');
@@ -32,6 +33,10 @@ async function start(): Promise<void> {
 
   const controller = new BodyController(body, materials, () => stage.invalidate());
   new Picker(stage, controller, (mesh) => controller.select(mesh));
+  controller.subscribe((kind) => {
+    if (kind === 'selection') stage.setOutlined(controller.selected ? [controller.selected] : []);
+    if (kind === 'visibility') stage.refreshShadows();
+  });
 
   mountInfoPanel(controller, { focus: (m) => rig.focus(m) });
   mountHiddenPanel(controller);
@@ -41,6 +46,7 @@ async function start(): Promise<void> {
     rig.focus(mesh);
   });
   mountKeyboard(controller, rig);
+  mountQualityToggles(stage);
   stage.controls.addEventListener('start', () => rig.cancel());
 
   const box = new THREE.Box3().setFromObject(body.root);

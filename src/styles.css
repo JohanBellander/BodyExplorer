@@ -5,8 +5,8 @@
 }
 
 :root {
-  --bg-dark: #1a1a2e;
-  --bg-panel: rgba(16, 16, 32, 0.92);
+  --bg-dark: #121318;
+  --bg-panel: rgba(20, 21, 28, 0.88);
   --accent: #e94560;
   --accent-light: #ff6b81;
   --text: #eaeaea;
@@ -64,7 +64,7 @@ body {
   left: 0;
   right: 0;
   padding: 12px 24px;
-  background: linear-gradient(180deg, rgba(16, 16, 32, 0.95), transparent);
+  background: linear-gradient(180deg, rgba(14, 15, 19, 0.9), transparent);
   display: flex;
   align-items: baseline;
   gap: 16px;
@@ -561,7 +561,7 @@ input[type='range']::-webkit-slider-thumb {
   left: 0;
   right: 0;
   padding: 10px 24px;
-  background: linear-gradient(0deg, rgba(16, 16, 32, 0.9), transparent);
+  background: linear-gradient(0deg, rgba(14, 15, 19, 0.85), transparent);
   text-align: center;
 }
 

@@ -7,13 +7,15 @@ An interactive 3D human muscular system explorer built with [Three.js](https://t
 ## Features
 
 - **Photorealistic 3D anatomy** — MRI-based mesh data from BodyParts3D, supplemented by Z-Anatomy meshes for additional muscles
+- **Studio rendering**: image-based lighting, physically based muscle/tendon/bone materials, ambient occlusion, soft floor shadow, selection outline
+- **Compact assets**: Meshopt-compressed models (~8.5 MB, down from 35 MB)
 - **Full skeleton overlay** — 201 bone meshes with adjustable transparency
 - **Click to identify** — click any muscle to see its name, muscle group, type, and links to Wikipedia and Kenhub
 - **Search** — find muscles by name with live search results
 - **Filter by muscle group** — toggle visibility of 14 muscle groups (head/neck, shoulder, chest, back, upper arm, forearm, abdomen, hip, upper leg, lower leg, hand, foot, trunk)
 - **Hide and restore parts** — hide individual muscles to reveal deeper layers; restore them from the hidden parts panel
 - **Custom color highlighting** — apply color swatches to any muscle for study or presentation
-- **Dual transparency sliders** — independently control muscle and skeleton opacity
+- **Dual transparency sliders**: independently control muscle and skeleton opacity; translucent muscles render as a clean shell over the bones
 - **Preset camera views** — front, back, and side views with smooth transitions
 - **Cursor-directed zoom** — scroll zooms toward where your cursor points
 - **Dark theme UI** — clean, non-intrusive controls that stay out of the way
