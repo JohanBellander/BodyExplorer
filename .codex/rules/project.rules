@@ -11,3 +11,6 @@ prefix_rule(pattern=["npx", "playwright", "test"], decision="allow", justificati
 prefix_rule(pattern=["npx", "tsc", "--noEmit"], decision="allow", justification="Local dev: npx tsc --noEmit")
 prefix_rule(pattern=["npx", "eslint"], decision="allow", justification="Local dev: npx eslint")
 prefix_rule(pattern=["npx", "prettier"], decision="allow", justification="Local dev: npx prettier")
+prefix_rule(pattern=["npm", "run", "assets:test"], decision="allow", justification="Local dev: npm run assets:test")
+prefix_rule(pattern=["uv", "run", "pytest"], decision="allow", justification="Local dev: uv run pytest")
+prefix_rule(pattern=["uv", "run", "ruff"], decision="allow", justification="Local dev: uv run ruff")

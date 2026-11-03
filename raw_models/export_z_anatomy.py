@@ -1,155 +1,155 @@
 """
-Export missing muscle meshes from Z-Anatomy Blender file as individual OBJ files.
-These are structures not present in BodyParts3D that we want to add.
+Export meshes from the Z-Anatomy Blender file as OBJ files (world space, metres).
+
+Run with Blender (not uv):
+    blender -b --factory-startup --python raw_models/export_z_anatomy.py
+
+Two kinds of objects are exported:
+- TARGETS: muscles BodyParts3D lacks; they are added to anatomy.glb.
+- LANDMARKS: structures present in BOTH datasets (bones and a few muscles). They are never shipped; the
+  pipeline uses them to register Z-Anatomy onto BodyParts3D (see pipeline/register.py).
+
+Outputs raw_models/z_anatomy_exports/{*.obj, manifest.json} and z_anatomy_exports/landmarks/{*.obj, manifest.json}.
 """
-import bpy
-import os
+
 import json
+import os
 
-# Open the Z-Anatomy blend file
-BLEND_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'z-anatomy', 'extracted', 'Z-Anatomy', 'Startup.blend')
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'z_anatomy_exports')
+import bpy
+import numpy as np
 
-bpy.ops.wm.open_mainfile(filepath=BLEND_PATH)
+HERE = os.path.dirname(os.path.abspath(__file__))
+BLEND_PATH = os.path.join(HERE, "z-anatomy", "extracted", "Z-Anatomy", "Startup.blend")
+OUTPUT_DIR = os.path.join(HERE, "z_anatomy_exports")
+LANDMARK_DIR = os.path.join(OUTPUT_DIR, "landmarks")
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# Define the muscles we want to extract
-# Format: (search_pattern, canonical_name, side_handling)
-# side_handling: 'both' = export .l and .r, 'single' = no side suffix
+# (Z-Anatomy object name without side suffix, canonical BodyParts3D-style name)
 TARGETS = [
     # Major muscles missing from BP3D
-    ('Latissimus dorsi muscle', 'latissimus dorsi', 'both'),
-    ('Rectus abdominis muscle', 'rectus abdominis', 'both'),
-    ('Internal abdominal oblique muscle', 'internal oblique', 'both'),
-    ('Transversus abdominis muscle', 'transversus abdominis', 'both'),
-    ('Quadratus lumborum muscle', 'quadratus lumborum', 'both'),
-
+    ("Latissimus dorsi muscle", "latissimus dorsi"),
+    ("Rectus abdominis muscle", "rectus abdominis"),
+    ("Internal abdominal oblique muscle", "internal oblique"),
+    ("Transversus abdominis muscle", "transversus abdominis"),
+    ("Quadratus lumborum muscle", "quadratus lumborum"),
     # Muscles of mastication
-    ('Superficial part of masseter', 'superficial part of masseter', 'both'),
-    ('Deep part of masseter', 'deep part of masseter', 'both'),
-    ('Temporalis muscle', 'temporalis', 'both'),
-    ('Medial pterygoid muscle', 'medial pterygoid', 'both'),
-    ('Inferior head of lateral pterygoid muscle', 'inferior head of lateral pterygoid', 'both'),
-    ('Superior head of lateral pterygoid muscle', 'superior head of lateral pterygoid', 'both'),
-
+    ("Superficial part of masseter", "superficial part of masseter"),
+    ("Deep part of masseter", "deep part of masseter"),
+    ("Temporalis muscle", "temporalis"),
+    ("Medial pterygoid muscle", "medial pterygoid"),
+    ("Inferior head of lateral pterygoid muscle", "inferior head of lateral pterygoid"),
+    ("Superior head of lateral pterygoid muscle", "superior head of lateral pterygoid"),
     # Facial expression muscles
-    ('Frontalis muscle', 'frontalis', 'both'),
-    ('Orbital part of orbicularis oculi', 'orbital part of orbicularis oculi', 'both'),
-    ('Palpebral part of orbicularis oculi', 'palpebral part of orbicularis oculi', 'both'),
-    ('Orbicularis oris muscle', 'orbicularis oris', 'both'),
-    ('Buccinator muscle', 'buccinator', 'both'),
-    ('Zygomaticus major muscle', 'zygomaticus major', 'both'),
-    ('Zygomaticus minor muscle', 'zygomaticus minor', 'both'),
-    ('Levator labii superioris', 'levator labii superioris', 'both'),
-    ('Depressor labii inferioris', 'depressor labii inferioris', 'both'),
-    ('Depressor anguli oris', 'depressor anguli oris', 'both'),
-    ('Risorius muscle', 'risorius', 'both'),
-    ('Mentalis muscle', 'mentalis', 'both'),
-    ('Procerus muscle', 'procerus', 'both'),
-    ('Nasalis muscle', 'nasalis', 'both'),
-    ('Corrugator supercilii', 'corrugator supercilii', 'both'),
-
+    ("Frontalis muscle", "frontalis"),
+    ("Orbital part of orbicularis oculi", "orbital part of orbicularis oculi"),
+    ("Palpebral part of orbicularis oculi", "palpebral part of orbicularis oculi"),
+    ("Orbicularis oris muscle", "orbicularis oris"),
+    ("Buccinator muscle", "buccinator"),
+    ("Zygomaticus major muscle", "zygomaticus major"),
+    ("Zygomaticus minor muscle", "zygomaticus minor"),
+    ("Levator labii superioris", "levator labii superioris"),
+    ("Depressor labii inferioris", "depressor labii inferioris"),
+    ("Depressor anguli oris", "depressor anguli oris"),
+    ("Risorius muscle", "risorius"),
+    ("Mentalis muscle", "mentalis"),
+    ("Procerus muscle", "procerus"),
+    ("Nasalis muscle", "nasalis"),
+    ("Corrugator supercilii", "corrugator supercilii"),
     # Deep back muscles
-    ('Multifidus colli muscle', 'multifidus cervicis', 'both'),
-    ('Multifidus thoracis muscle', 'multifidus thoracis', 'both'),
-    ('Multifidus lumborum muscle', 'multifidus lumborum', 'both'),
-    ('Rotatores', 'rotatores', 'both'),
-
-    # IT band
-    ('Iliotibial tract', 'iliotibial tract', 'both'),
-
-    # Thoracolumbar fascia
-    ('Posterior layer of thoracolumbar fascia', 'posterior layer of thoracolumbar fascia', 'both'),
-    ('Anterior layer of thoracolumbar fascia', 'anterior layer of thoracolumbar fascia', 'both'),
-    ('Middle layer of thoracolumbar fascia', 'middle layer of thoracolumbar fascia', 'both'),
+    ("Multifidus colli muscle", "multifidus cervicis"),
+    ("Multifidus thoracis muscle", "multifidus thoracis"),
+    ("Multifidus lumborum muscle", "multifidus lumborum"),
+    ("Rotatores", "rotatores"),
+    # IT band and thoracolumbar fascia
+    ("Iliotibial tract", "iliotibial tract"),
+    ("Posterior layer of thoracolumbar fascia", "posterior layer of thoracolumbar fascia"),
+    ("Anterior layer of thoracolumbar fascia", "anterior layer of thoracolumbar fascia"),
+    ("Middle layer of thoracolumbar fascia", "middle layer of thoracolumbar fascia"),
 ]
 
-exported = []
-skipped = []
+# Structures in both datasets: (Z-Anatomy object, BodyParts3D mesh name; "{side}" = left/right).
+LANDMARKS = [
+    ("Femur", "{side} femur"),
+    ("Hip bone", "{side} hip bone"),
+    ("Humerus", "{side} humerus"),
+    ("Scapula", "{side} scapula"),
+    ("Clavicle", "{side} clavicle"),
+    ("Tibia", "{side} tibia"),
+    ("Fibula", "{side} fibula"),
+    ("Radius", "{side} radius"),
+    ("Ulna", "{side} ulna"),
+    ("Patella", "{side} patella"),
+    ("Body of sternum", "body of sternum"),
+    ("Frontal bone", "frontal bone"),
+    ("Occipital bone", "occipital bone"),
+    ("Mandible", "mandible"),
+    ("Parietal bone", "{side} parietal bone"),
+    ("External abdominal oblique muscle", "{side} external oblique"),
+    ("Gluteus maximus muscle", "{side} gluteus maximus"),
+    ("Sartorius muscle", "{side} sartorius"),
+]
 
-for search_name, canonical_name, side_handling in TARGETS:
-    if side_handling == 'both':
-        sides = [('.l', 'left'), ('.r', 'right')]
-    else:
-        sides = [('', '')]
+SIDES = [(".l", "left"), (".r", "right")]
 
-    for suffix, side_label in sides:
-        obj_name = search_name + suffix
-        obj = bpy.data.objects.get(obj_name)
 
-        if obj is None:
-            skipped.append(f"{obj_name} (not found)")
-            continue
+def write_obj(path, name, obj):
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    eval_obj = obj.evaluated_get(depsgraph)
+    mesh = eval_obj.to_mesh()
+    mesh.calc_loop_triangles()
+    n = len(mesh.vertices)
+    co = np.empty(n * 3, dtype=np.float64)
+    mesh.vertices.foreach_get("co", co)
+    co = co.reshape(-1, 3)
+    m = np.array(obj.matrix_world, dtype=np.float64)
+    co = co @ m[:3, :3].T + m[:3, 3]
+    tris = np.empty(len(mesh.loop_triangles) * 3, dtype=np.int64)
+    mesh.loop_triangles.foreach_get("vertices", tris)
+    tris = tris.reshape(-1, 3) + 1
+    with open(path, "w") as f:
+        f.write(f"# Z-Anatomy export: {name} (object {obj.name})\no {name}\n")
+        np.savetxt(f, co, fmt="v %.6f %.6f %.6f")
+        np.savetxt(f, tris, fmt="f %d %d %d")
+    eval_obj.to_mesh_clear()
+    return len(tris)
 
-        if obj.type != 'MESH':
-            skipped.append(f"{obj_name} (not a mesh, type={obj.type})")
-            continue
 
-        mesh = obj.data
-        if len(mesh.polygons) < 5:
-            skipped.append(f"{obj_name} (too few faces: {len(mesh.polygons)})")
-            continue
+def export(entries, out_dir, with_counterpart):
+    os.makedirs(out_dir, exist_ok=True)
+    exported, skipped = [], []
+    for za_name, canonical in entries:
+        sided = [(za_name + suf, side) for suf, side in SIDES if bpy.data.objects.get(za_name + suf)]
+        candidates = sided or [(za_name, "")]
+        found_any = False
+        for obj_name, side in candidates:
+            obj = bpy.data.objects.get(obj_name)
+            if obj is None or obj.type != "MESH" or len(obj.data.polygons) < 5:
+                continue
+            found_any = True
+            if with_counterpart:
+                out_name = canonical.format(side=side).strip()
+            else:
+                out_name = f"{side} {canonical}".strip()
+            safe = out_name.replace(" ", "_").replace("(", "").replace(")", "")
+            faces = write_obj(os.path.join(out_dir, f"{safe}.obj"), out_name, obj)
+            exported.append(
+                {
+                    "name": out_name,
+                    "file": f"{safe}.obj",
+                    "faces": faces,
+                    "original_object": obj_name,
+                    "source": "z-anatomy",
+                }
+            )
+            print(f"  exported {out_name} ({faces} tris)")
+        if not found_any:
+            skipped.append(za_name)
+    with open(os.path.join(out_dir, "manifest.json"), "w") as f:
+        json.dump(exported, f, indent=2)
+    return exported, skipped
 
-        # Build the output name
-        if side_label:
-            out_name = f"{side_label} {canonical_name}"
-        else:
-            out_name = canonical_name
 
-        # Create a safe filename
-        safe_name = out_name.replace(' ', '_').replace('(', '').replace(')', '')
-        obj_path = os.path.join(OUTPUT_DIR, f"{safe_name}.obj")
-
-        # Get the evaluated mesh with modifiers applied
-        depsgraph = bpy.context.evaluated_depsgraph_get()
-        eval_obj = obj.evaluated_get(depsgraph)
-        eval_mesh = eval_obj.to_mesh()
-
-        # Get world transform matrix
-        matrix = obj.matrix_world
-
-        # Write OBJ manually to apply world transform
-        with open(obj_path, 'w') as f:
-            f.write(f"# Z-Anatomy export: {out_name}\n")
-            f.write(f"# Original object: {obj_name}\n")
-            f.write(f"o {out_name}\n")
-
-            # Write vertices with world transform applied
-            for v in eval_mesh.vertices:
-                co = matrix @ v.co
-                f.write(f"v {co.x:.6f} {co.y:.6f} {co.z:.6f}\n")
-
-            # Write normals
-            for v in eval_mesh.vertices:
-                no = (matrix.to_3x3() @ v.normal).normalized()
-                f.write(f"vn {no.x:.6f} {no.y:.6f} {no.z:.6f}\n")
-
-            # Write faces (1-indexed)
-            for poly in eval_mesh.polygons:
-                indices = ' '.join(f"{vi+1}//{vi+1}" for vi in poly.vertices)
-                f.write(f"f {indices}\n")
-
-        faces_count = len(mesh.polygons)
-        print(f"  Exported: {out_name} ({faces_count} faces) -> {obj_path}")
-        exported.append({
-            'name': out_name,
-            'file': f"{safe_name}.obj",
-            'faces': faces_count,
-            'source': 'z-anatomy',
-            'original_object': obj_name,
-        })
-
-        eval_obj.to_mesh_clear()
-
-# Write manifest
-manifest_path = os.path.join(OUTPUT_DIR, 'manifest.json')
-with open(manifest_path, 'w') as f:
-    json.dump(exported, f, indent=2)
-
-print(f"\n=== SUMMARY ===")
-print(f"Exported: {len(exported)} meshes")
-print(f"Skipped: {len(skipped)}")
-for s in skipped:
-    print(f"  SKIP: {s}")
-print(f"Manifest: {manifest_path}")
+bpy.ops.wm.open_mainfile(filepath=BLEND_PATH)
+targets, skipped_t = export(TARGETS, OUTPUT_DIR, with_counterpart=False)
+landmarks, skipped_l = export(LANDMARKS, LANDMARK_DIR, with_counterpart=True)
+print(f"\nTargets: {len(targets)} exported, skipped: {skipped_t}")
+print(f"Landmarks: {len(landmarks)} exported, skipped: {skipped_l}")

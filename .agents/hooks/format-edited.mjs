@@ -8,9 +8,11 @@ import { extname, isAbsolute, resolve } from "node:path";
 
 // extension -> list of commands; "{file}" is replaced with the absolute path.
 const PRETTIER = [["node", "node_modules/prettier/bin/prettier.cjs", "--write", "--ignore-unknown", "{file}"]];
-const FORMATTERS = Object.fromEntries(
-  [".ts", ".js", ".mjs", ".json", ".css", ".html", ".yml", ".yaml"].map((ext) => [ext, PRETTIER]),
-);
+const RUFF = [["uv", "run", "--project", "raw_models", "ruff", "format", "{file}"]];
+const FORMATTERS = {
+  ...Object.fromEntries([".ts", ".js", ".mjs", ".json", ".css", ".html", ".yml", ".yaml"].map((ext) => [ext, PRETTIER])),
+  ".py": RUFF,
+};
 
 let input = {};
 try { input = JSON.parse(readFileSync(0, "utf8") || "{}"); } catch { process.exit(0); }

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { MUSCLE_GROUPS, MUSCLE_GROUP_KEYS, type MuscleGroupKey } from '../data/muscleGroups';
+import { installFiberShader, MUSCLE_FIBERS, TENDON_FIBERS, type FiberParams } from './fiberShader';
 import type { AnatomyPart } from './types';
 
 export type ColorMode = 'natural' | 'group';
@@ -26,7 +27,7 @@ type Physical = THREE.MeshPhysicalMaterial;
 
 /** Moist muscle tissue: a soft sheen and a faint clearcoat give the wet, fibrous look of an écorché. */
 function muscleMaterial(color: THREE.ColorRepresentation): Physical {
-  return new THREE.MeshPhysicalMaterial({
+  return withFibers(MUSCLE_FIBERS, {
     color,
     roughness: 0.55,
     metalness: 0,
@@ -41,7 +42,7 @@ function muscleMaterial(color: THREE.ColorRepresentation): Physical {
 
 /** Tendon / fascia: pearly, glistening white. */
 function tendonMaterial(): Physical {
-  return new THREE.MeshPhysicalMaterial({
+  return withFibers(TENDON_FIBERS, {
     color: 0xe6dcc6,
     roughness: 0.32,
     sheen: 1,
@@ -51,6 +52,12 @@ function tendonMaterial(): Physical {
     clearcoatRoughness: 0.3,
     side: THREE.DoubleSide,
   });
+}
+
+function withFibers(params: FiberParams, opts: THREE.MeshPhysicalMaterialParameters): Physical {
+  const m = new THREE.MeshPhysicalMaterial(opts);
+  installFiberShader(m, params);
+  return m;
 }
 
 /** Bone: matte, slightly warm ivory. */
@@ -114,6 +121,8 @@ export class MaterialLibrary {
     let v = cache.get(base);
     if (!v) {
       v = base.clone();
+      const fibers = base.userData.fiberParams as FiberParams | undefined;
+      if (fibers) installFiberShader(v, fibers);
       v.emissive = base.color.clone().lerp(new THREE.Color(0xffe0b0), 0.5).multiplyScalar(glow);
       applyOpacity(v, base === this.bone ? this.boneOpacity : this.muscleOpacity, base === this.bone);
       cache.set(base, v);

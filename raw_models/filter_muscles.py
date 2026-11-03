@@ -7,9 +7,9 @@ import os
 import sys
 import struct
 
-OBJ_DIR = '/home/johanbellander/projects/BodyExplorer/raw_models/bp3d/isa_BP3D_4.0_obj_99'
-MUSCLE_LIST = '/home/johanbellander/projects/BodyExplorer/raw_models/muscle_files.json'
-OUTPUT_GLB = '/home/johanbellander/projects/BodyExplorer/public/anatomy.glb'
+HERE = os.path.dirname(os.path.abspath(__file__))
+OBJ_DIR = os.path.join(HERE, 'bp3d', 'isa_BP3D_4.0_obj_99')
+MUSCLE_LIST = os.path.join(HERE, 'muscle_files.json')
 
 # Categories to exclude (not skeletal muscles)
 EXCLUDE_PATTERNS = [
@@ -102,7 +102,7 @@ for m in filtered:
     print(f"  {m['file']:15s}  {m['name']}")
 
 # Save filtered list
-output_list = '/home/johanbellander/projects/BodyExplorer/raw_models/filtered_muscles.json'
+output_list = os.path.join(HERE, 'filtered_muscles.json')
 with open(output_list, 'w') as f:
     json.dump(filtered, f, indent=2)
 print(f"\nWrote filtered list to {output_list}")

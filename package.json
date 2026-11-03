@@ -18,7 +18,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test"
+    "check": "npm run typecheck && npm run lint && npm run format:check && npm run test",
+    "assets:build": "cd raw_models && uv run python -m pipeline.build",
+    "assets:test": "cd raw_models && uv run pytest && uv run ruff check pipeline tests export_z_anatomy.py"
   },
   "dependencies": {
     "three": "0.187.0",

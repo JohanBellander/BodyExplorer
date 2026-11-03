@@ -5,8 +5,9 @@ and create a mapping of file -> anatomical name.
 import os
 import re
 
-OBJ_DIR = '/home/johanbellander/projects/BodyExplorer/raw_models/bp3d/isa_BP3D_4.0_obj_99'
-PARTS_LIST = '/home/johanbellander/projects/BodyExplorer/raw_models/parts_list.txt'
+HERE = os.path.dirname(os.path.abspath(__file__))
+OBJ_DIR = os.path.join(HERE, 'bp3d', 'isa_BP3D_4.0_obj_99')
+PARTS_LIST = os.path.join(HERE, 'parts_list.txt')
 
 # Parse parts list: FMA_ID -> (BP_ID, name)
 fma_to_info = {}
@@ -131,7 +132,7 @@ for mf in muscle_files:
 
 # Write the filtered list to a JSON file for the conversion script
 import json
-output = '/home/johanbellander/projects/BodyExplorer/raw_models/muscle_files.json'
+output = os.path.join(HERE, 'muscle_files.json')
 with open(output, 'w') as f:
     json.dump(muscle_files, f, indent=2)
 print(f"\nWrote {len(muscle_files)} entries to {output}")
