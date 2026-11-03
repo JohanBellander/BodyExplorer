@@ -1,212 +1,67 @@
 /**
- * Anatomical data for BodyParts3D + Z-Anatomy mesh-based muscular system.
- * Maps mesh names (from GLB) to muscle groups and anatomical information.
- *
- * The GLB contains ~467 meshes named after their anatomical structures,
- * sourced from BodyParts3D (401 meshes) and Z-Anatomy (66 meshes).
- * e.g. "left gluteus maximus", "right biceps brachii", etc.
- */
-
-export const MUSCLE_GROUPS = {
-  HEAD_NECK: { label: 'Head & Neck', color: '#d4574a' },
-  SHOULDER: { label: 'Shoulders', color: '#c0392b' },
-  CHEST: { label: 'Chest', color: '#e74c3c' },
-  BACK: { label: 'Back', color: '#a93226' },
-  UPPER_ARM: { label: 'Upper Arms', color: '#cb4335' },
-  FOREARM: { label: 'Forearms', color: '#b03a2e' },
-  ABDOMEN: { label: 'Abdomen', color: '#d35400' },
-  HIP: { label: 'Hips & Glutes', color: '#a04000' },
-  UPPER_LEG: { label: 'Upper Legs', color: '#c0392b' },
-  LOWER_LEG: { label: 'Lower Legs', color: '#a93226' },
-  HAND: { label: 'Hand', color: '#b5450a' },
-  FOOT: { label: 'Foot', color: '#8b3a2e' },
-  TRUNK: { label: 'Trunk', color: '#c44536' },
-  OTHER: { label: 'Other', color: '#888888' },
-};
-
-/**
- * Classify a mesh name into a muscle group.
- * Uses keyword matching against the anatomical name.
- */
-export function classifyMuscleGroup(name) {
-  const n = name.toLowerCase();
-
-  // Head & Neck
-  if (n.includes('sternocleidomastoid') || n.includes('platysma') ||
-      n.includes('digastric') || n.includes('mylohyoid') || n.includes('sternohyoid') ||
-      n.includes('omohyoid') || n.includes('thyrohyoid') || n.includes('stylohyoid') ||
-      n.includes('splenius') || n.includes('longus colli') || n.includes('rectus capitis') ||
-      n.includes('levator palpebrae') || n.includes('oblique arytenoid') ||
-      n.includes('cricothyroid') || n.includes('levator veli') || n.includes('tensor veli') ||
-      n.includes('arytenoid') || n.includes('vocal') ||
-      n.includes('scalenus') || n.includes('geniohyoid') || n.includes('sternothyroid') ||
-      n.includes('longus capitis') || n.includes('crico-arytenoid') ||
-      n.includes('cricoarytenoid') || n.includes('thyro-arytenoid') ||
-      n.includes('thyroarytenoid') || n.includes('transverse arytenoid') ||
-      // Facial muscles (Z-Anatomy)
-      n.includes('frontalis') || n.includes('orbicularis oculi') ||
-      n.includes('orbicularis oris') || n.includes('zygomaticus') ||
-      n.includes('levator labii') || n.includes('depressor labii') ||
-      n.includes('depressor anguli') || n.includes('risorius') ||
-      n.includes('mentalis') || n.includes('procerus') ||
-      n.includes('nasalis') || n.includes('corrugator supercilii') ||
-      // Mastication muscles (Z-Anatomy)
-      n.includes('temporalis') || n.includes('masseter') ||
-      n.includes('pterygoid'))
-    return 'HEAD_NECK';
-
-  // Eye muscles
-  if (n.includes('lateral rectus') || n.includes('medial rectus') ||
-      n.includes('superior rectus') || n.includes('inferior rectus') ||
-      n.includes('superior oblique') || n.includes('inferior oblique'))
-    return 'HEAD_NECK';
-
-  // Shoulders
-  if (n.includes('deltoid') || n.includes('supraspinatus') || n.includes('infraspinatus') ||
-      n.includes('subscapularis') || n.includes('teres') || n.includes('levator scapulae') ||
-      n.includes('subclavius'))
-    return 'SHOULDER';
-
-  // Chest
-  if (n.includes('pectoralis') || n.includes('serratus anterior'))
-    return 'CHEST';
-
-  // Back
-  if (n.includes('trapezius') || n.includes('latissimus') || n.includes('rhomboid') ||
-      n.includes('serratus posterior') || n.includes('erector') || n.includes('levatores costarum') ||
-      n.includes('iliocostalis') || n.includes('longissimus') || n.includes('spinalis') ||
-      n.includes('semispinalis') || n.includes('interspinal') || n.includes('intertransversar') ||
-      // Deep back muscles (Z-Anatomy)
-      n.includes('multifidus') || n.includes('rotatores') ||
-      n.includes('thoracolumbar fascia') || n.includes('quadratus lumborum'))
-    return 'BACK';
-
-  // Upper arm
-  if (n.includes('biceps brachii') || n.includes('triceps brachii') ||
-      n.includes('brachialis') && !n.includes('brachioradialis') ||
-      n.includes('coracobrachialis') || n.includes('anconeus'))
-    return 'UPPER_ARM';
-
-  // Forearm
-  if (n.includes('brachioradialis') || n.includes('pronator') || n.includes('supinator') ||
-      n.includes('flexor carpi') || n.includes('extensor carpi') ||
-      n.includes('flexor digitorum') && !n.includes('foot') ||
-      n.includes('extensor digitorum') && !n.includes('longus') ||
-      n.includes('extensor indicis') || n.includes('extensor pollicis') ||
-      n.includes('flexor pollicis') && n.includes('hand') ||
-      n.includes('abductor pollicis longus') || n.includes('extensor digiti minimi') ||
-      n.includes('flexor pollicis longus') || n.includes('palmaris') ||
-      n.includes('interosseous membrane') && n.includes('forearm'))
-    return 'FOREARM';
-
-  // Hand
-  if (n.includes('of') && n.includes('hand') ||
-      n.includes('interossei') && n.includes('hand') ||
-      n.includes('lumbricals') && n.includes('hand') ||
-      n.includes('opponens pollicis') || n.includes('opponens digiti') && n.includes('hand') ||
-      n.includes('abductor pollicis brevis') ||
-      n.includes('flexor pollicis brevis') ||
-      n.includes('adductor pollicis') ||
-      n.includes('retinaculum') && n.includes('wrist') ||
-      n.includes('flexor digiti minimi') && n.includes('hand') ||
-      n.includes('abductor digiti minimi') && n.includes('hand'))
-    return 'HAND';
-
-  // Abdomen
-  if (n.includes('external oblique') || n.includes('internal oblique') ||
-      n.includes('rectus abdominis') || n.includes('transversus abdominis'))
-    return 'ABDOMEN';
-
-  // Trunk (intercostals, diaphragm, etc.)
-  if (n.includes('intercostal') || n.includes('diaphragm') || n.includes('transversus thoracis'))
-    return 'TRUNK';
-
-  // Hip & Glutes
-  if (n.includes('gluteus') || n.includes('piriformis') || n.includes('obturator') ||
-      n.includes('iliacus') || n.includes('psoas') || n.includes('quadratus femoris') ||
-      n.includes('tensor fasciae') || n.includes('gemellus') || n.includes('pectineus') ||
-      n.includes('coccygeus') || n.includes('iliococcygeus') || n.includes('pubococcygeus') ||
-      n.includes('puborectalis') || n.includes('levator ani') ||
-      n.includes('anal sphincter'))
-    return 'HIP';
-
-  // Upper leg
-  if (n.includes('rectus femoris') || n.includes('vastus') ||
-      n.includes('biceps femoris') || n.includes('semitendinosus') ||
-      n.includes('semimembranosus') || n.includes('sartorius') || n.includes('gracilis') ||
-      n.includes('adductor') && !n.includes('hallucis') && !n.includes('pollicis') ||
-      n.includes('iliotibial'))
-    return 'UPPER_LEG';
-
-  // Lower leg
-  if (n.includes('gastrocnemius') || n.includes('soleus') ||
-      n.includes('tibialis') || n.includes('fibularis') || n.includes('peroneus') ||
-      n.includes('plantaris') || n.includes('popliteus') ||
-      n.includes('flexor digitorum longus') || n.includes('flexor hallucis longus') ||
-      n.includes('extensor digitorum longus') || n.includes('extensor hallucis') ||
-      n.includes('calcaneal tendon') ||
-      n.includes('interosseous membrane') && n.includes('leg'))
-    return 'LOWER_LEG';
-
-  // Foot
-  if (n.includes('of') && n.includes('foot') ||
-      n.includes('lumbrical') && n.includes('foot') ||
-      n.includes('interosseous') && n.includes('foot') ||
-      n.includes('abductor hallucis') || n.includes('adductor hallucis') ||
-      n.includes('flexor hallucis brevis') || n.includes('flexor digitorum brevis') ||
-      n.includes('flexor accessorius') || n.includes('plantar ligament') ||
-      n.includes('abductor digiti minimi') && n.includes('foot') ||
-      n.includes('flexor digiti minimi') && n.includes('foot') ||
-      n.includes('opponens digiti minimi') && n.includes('foot'))
-    return 'FOOT';
-
-  return null;
-}
-
-/**
  * Anatomical information database.
  * Maps normalized muscle names to anatomical details.
  * The keys use simplified/canonical names that match against the mesh names from BP3D.
  */
-const ANATOMY_DB = {
+
+export interface AnatomyInfo {
+  origin: string;
+  insertion: string;
+  action: string;
+  innervation?: string;
+  notes?: string;
+}
+
+export const UNKNOWN_INFO: Readonly<AnatomyInfo> = Object.freeze({
+  origin: 'See anatomical references',
+  insertion: 'See anatomical references',
+  action: 'See anatomical references',
+});
+
+/** True when the database has no specific entry for this structure. */
+export function isUnknownInfo(info: AnatomyInfo): boolean {
+  return info === UNKNOWN_INFO;
+}
+
+export const ANATOMY_DB: Record<string, AnatomyInfo> = {
   // ─── HEAD & NECK ───
-  'sternocleidomastoid': {
+  sternocleidomastoid: {
     origin: 'Sternum (manubrium) and medial clavicle',
     insertion: 'Mastoid process of temporal bone',
     action: 'Unilateral: lateral flexion, contralateral rotation. Bilateral: neck flexion',
     innervation: 'Accessory nerve (CN XI), C2-C3',
   },
-  'platysma': {
+  platysma: {
     origin: 'Fascia of deltoid and pectoralis major',
     insertion: 'Mandible, skin of lower face',
     action: 'Depresses mandible and corners of mouth; tenses skin of neck',
     innervation: 'Facial nerve (CN VII)',
   },
-  'digastric': {
+  digastric: {
     origin: 'Anterior belly: digastric fossa of mandible. Posterior belly: mastoid process',
     insertion: 'Intermediate tendon to hyoid bone',
     action: 'Depresses mandible, elevates hyoid',
     innervation: 'Anterior: mylohyoid nerve (CN V3). Posterior: facial nerve (CN VII)',
   },
-  'mylohyoid': {
+  mylohyoid: {
     origin: 'Mylohyoid line of mandible',
     insertion: 'Hyoid bone and mylohyoid raphe',
     action: 'Elevates hyoid, floor of mouth; depresses mandible',
     innervation: 'Mylohyoid nerve (CN V3)',
   },
-  'sternohyoid': {
+  sternohyoid: {
     origin: 'Manubrium of sternum and medial clavicle',
     insertion: 'Body of hyoid bone',
     action: 'Depresses hyoid bone after swallowing',
     innervation: 'Ansa cervicalis (C1-C3)',
   },
-  'omohyoid': {
+  omohyoid: {
     origin: 'Superior border of scapula',
     insertion: 'Body of hyoid bone',
     action: 'Depresses hyoid bone',
     innervation: 'Ansa cervicalis (C1-C3)',
   },
-  'thyrohyoid': {
+  thyrohyoid: {
     origin: 'Thyroid cartilage (oblique line)',
     insertion: 'Body and greater horn of hyoid bone',
     action: 'Depresses hyoid or elevates larynx',
@@ -254,19 +109,19 @@ const ANATOMY_DB = {
     action: 'Elevates second rib; lateral flexion of neck',
     innervation: 'Anterior rami of cervical nerves C6-C8',
   },
-  'geniohyoid': {
+  geniohyoid: {
     origin: 'Inferior mental spine (genial tubercle) of mandible',
     insertion: 'Body of hyoid bone',
     action: 'Elevates and protracts hyoid; depresses mandible when hyoid is fixed',
     innervation: 'C1 via hypoglossal nerve (CN XII)',
   },
-  'sternothyroid': {
+  sternothyroid: {
     origin: 'Posterior surface of manubrium of sternum',
     insertion: 'Oblique line of thyroid cartilage',
     action: 'Depresses larynx after swallowing or vocalization',
     innervation: 'Ansa cervicalis (C1-C3)',
   },
-  'stylohyoid': {
+  stylohyoid: {
     origin: 'Styloid process of temporal bone',
     insertion: 'Body of hyoid bone (at junction with greater horn)',
     action: 'Elevates and retracts hyoid bone during swallowing',
@@ -314,21 +169,22 @@ const ANATOMY_DB = {
     action: 'Adducts arytenoid cartilages; closes laryngeal inlet',
     innervation: 'Recurrent laryngeal nerve (CN X)',
   },
-  'cricothyroid': {
+  cricothyroid: {
     origin: 'Anterior and lateral surfaces of cricoid arch',
     insertion: 'Inferior horn and lower lamina of thyroid cartilage',
     action: 'Tenses and elongates vocal cords; raises pitch',
     innervation: 'External laryngeal nerve (CN X)',
   },
   // Facial muscles (Z-Anatomy)
-  'frontalis': {
+  frontalis: {
     origin: 'Galea aponeurotica (epicranial aponeurosis)',
     insertion: 'Skin of eyebrows and root of nose',
     action: 'Raises eyebrows; wrinkles forehead skin (expression of surprise)',
     innervation: 'Temporal branch of facial nerve (CN VII)',
   },
   'orbicularis oculi': {
-    origin: 'Orbital: medial orbital margin, medial palpebral ligament. Palpebral: medial palpebral ligament, lacrimal bone',
+    origin:
+      'Orbital: medial orbital margin, medial palpebral ligament. Palpebral: medial palpebral ligament, lacrimal bone',
     insertion: 'Circular (returns to origin); lateral palpebral raphe',
     action: 'Orbital part: forceful eye closure. Palpebral part: gentle blinking',
     innervation: 'Temporal and zygomatic branches of facial nerve (CN VII)',
@@ -369,25 +225,25 @@ const ANATOMY_DB = {
     action: 'Depresses angle of mouth (frowning)',
     innervation: 'Marginal mandibular branch of facial nerve (CN VII)',
   },
-  'risorius': {
+  risorius: {
     origin: 'Parotid fascia and skin over masseter',
     insertion: 'Angle of mouth (modiolus)',
     action: 'Retracts angle of mouth; produces a false smile or grimace',
     innervation: 'Buccal branch of facial nerve (CN VII)',
   },
-  'mentalis': {
+  mentalis: {
     origin: 'Incisive fossa of mandible (below incisors)',
     insertion: 'Skin of chin',
     action: 'Protrudes lower lip; wrinkles chin skin (pouting)',
     innervation: 'Marginal mandibular branch of facial nerve (CN VII)',
   },
-  'procerus': {
+  procerus: {
     origin: 'Nasal bone and upper lateral nasal cartilage',
     insertion: 'Skin between eyebrows (glabella)',
     action: 'Depresses medial eyebrow; produces transverse wrinkles over bridge of nose',
     innervation: 'Temporal branch of facial nerve (CN VII)',
   },
-  'nasalis': {
+  nasalis: {
     origin: 'Transverse part: maxilla lateral to nasal notch. Alar part: maxilla over lateral incisor',
     insertion: 'Transverse part: aponeurosis on bridge of nose. Alar part: alar cartilage',
     action: 'Transverse part: compresses nostril. Alar part: dilates nostril (flaring)',
@@ -400,14 +256,15 @@ const ANATOMY_DB = {
     innervation: 'Temporal branch of facial nerve (CN VII)',
   },
   // Mastication muscles (Z-Anatomy)
-  'temporalis': {
+  temporalis: {
     origin: 'Temporal fossa and deep temporal fascia',
     insertion: 'Coronoid process and anterior ramus of mandible',
     action: 'Elevation and retraction of mandible; unilateral: ipsilateral deviation',
     innervation: 'Deep temporal nerves from mandibular nerve (CN V3)',
   },
-  'masseter': {
-    origin: 'Superficial part: zygomatic arch (anterior two-thirds). Deep part: zygomatic arch (posterior third)',
+  masseter: {
+    origin:
+      'Superficial part: zygomatic arch (anterior two-thirds). Deep part: zygomatic arch (posterior third)',
     insertion: 'Lateral surface of ramus and angle of mandible',
     action: 'Elevation and protrusion of mandible; powerful jaw closing for mastication',
     innervation: 'Masseteric nerve from mandibular nerve (CN V3)',
@@ -419,32 +276,33 @@ const ANATOMY_DB = {
     innervation: 'Medial pterygoid nerve from mandibular nerve (CN V3)',
   },
   'lateral pterygoid': {
-    origin: 'Superior head: infratemporal surface of sphenoid. Inferior head: lateral surface of lateral pterygoid plate',
+    origin:
+      'Superior head: infratemporal surface of sphenoid. Inferior head: lateral surface of lateral pterygoid plate',
     insertion: 'Superior head: articular disc and capsule of TMJ. Inferior head: pterygoid fovea of mandible',
     action: 'Protrusion and depression of mandible; lateral movements for grinding',
     innervation: 'Lateral pterygoid nerve from mandibular nerve (CN V3)',
   },
 
   // ─── SHOULDER ───
-  'deltoid': {
+  deltoid: {
     origin: 'Lateral clavicle, acromion, spine of scapula',
     insertion: 'Deltoid tuberosity of humerus',
     action: 'Anterior: flexion, medial rotation. Middle: abduction. Posterior: extension, lateral rotation',
     innervation: 'Axillary nerve (C5, C6)',
   },
-  'supraspinatus': {
+  supraspinatus: {
     origin: 'Supraspinous fossa of scapula',
     insertion: 'Superior facet of greater tubercle of humerus',
     action: 'Initiates abduction of shoulder (first 15°)',
     innervation: 'Suprascapular nerve (C5, C6)',
   },
-  'infraspinatus': {
+  infraspinatus: {
     origin: 'Infraspinous fossa of scapula',
     insertion: 'Middle facet of greater tubercle of humerus',
     action: 'Lateral rotation of shoulder; stabilizes humeral head',
     innervation: 'Suprascapular nerve (C5, C6)',
   },
-  'subscapularis': {
+  subscapularis: {
     origin: 'Subscapular fossa',
     insertion: 'Lesser tubercle of humerus',
     action: 'Medial rotation of arm; stabilizes shoulder joint',
@@ -468,7 +326,7 @@ const ANATOMY_DB = {
     action: 'Elevates scapula; tilts glenoid cavity inferiorly',
     innervation: 'Dorsal scapular nerve (C5), C3-C4',
   },
-  'subclavius': {
+  subclavius: {
     origin: 'First rib at junction with its costal cartilage',
     insertion: 'Inferior surface of middle third of clavicle',
     action: 'Depresses and stabilizes clavicle; protects underlying neurovascular structures',
@@ -496,7 +354,7 @@ const ANATOMY_DB = {
   },
 
   // ─── BACK ───
-  'trapezius': {
+  trapezius: {
     origin: 'External occipital protuberance, nuchal ligament, spinous processes C7-T12',
     insertion: 'Lateral clavicle, acromion, spine of scapula',
     action: 'Upper: elevates scapula. Middle: retracts scapula. Lower: depresses scapula',
@@ -527,7 +385,8 @@ const ANATOMY_DB = {
     innervation: 'Intercostal nerves T2-T5',
   },
   'latissimus dorsi': {
-    origin: 'Spinous processes T7-L5, thoracolumbar fascia, iliac crest, inferior angle of scapula, ribs 9-12',
+    origin:
+      'Spinous processes T7-L5, thoracolumbar fascia, iliac crest, inferior angle of scapula, ribs 9-12',
     insertion: 'Floor of intertubercular groove of humerus',
     action: 'Extension, adduction, and medial rotation of arm; assists in respiration',
     innervation: 'Thoracodorsal nerve (C6, C7, C8)',
@@ -598,13 +457,13 @@ const ANATOMY_DB = {
     action: 'Extension and contralateral rotation of thoracic spine',
     innervation: 'Posterior rami of thoracic spinal nerves',
   },
-  'interspinalis': {
+  interspinalis: {
     origin: 'Spinous process of vertebra below',
     insertion: 'Spinous process of vertebra above',
     action: 'Extension of vertebral column; postural stabilization',
     innervation: 'Posterior rami of spinal nerves',
   },
-  'intertransversarii': {
+  intertransversarii: {
     origin: 'Transverse process of vertebra below',
     insertion: 'Transverse process of vertebra above',
     action: 'Lateral flexion of vertebral column; postural stabilization',
@@ -629,7 +488,7 @@ const ANATOMY_DB = {
     action: 'Key spinal stabilizer; extension and contralateral rotation of lumbar spine',
     innervation: 'Posterior rami of lumbar spinal nerves',
   },
-  'rotatores': {
+  rotatores: {
     origin: 'Transverse process of vertebra below',
     insertion: 'Lamina and base of spinous process of vertebra above (brevis: 1 level; longus: 2 levels)',
     action: 'Proprioception; assists extension and contralateral rotation of vertebral column',
@@ -656,24 +515,25 @@ const ANATOMY_DB = {
     innervation: 'Musculocutaneous nerve (C5, C6)',
   },
   'triceps brachii': {
-    origin: 'Long head: infraglenoid tubercle. Lateral head: posterior humerus above radial groove. Medial head: posterior humerus below radial groove',
+    origin:
+      'Long head: infraglenoid tubercle. Lateral head: posterior humerus above radial groove. Medial head: posterior humerus below radial groove',
     insertion: 'Olecranon process of ulna',
     action: 'Extension of elbow; long head assists shoulder extension/adduction',
     innervation: 'Radial nerve (C6-C8)',
   },
-  'brachialis': {
+  brachialis: {
     origin: 'Distal half of anterior surface of humerus',
     insertion: 'Coronoid process and tuberosity of ulna',
     action: 'Flexion of elbow (primary flexor)',
     innervation: 'Musculocutaneous nerve (C5, C6)',
   },
-  'coracobrachialis': {
+  coracobrachialis: {
     origin: 'Coracoid process of scapula',
     insertion: 'Middle medial surface of humerus',
     action: 'Flexion and adduction of arm at shoulder',
     innervation: 'Musculocutaneous nerve (C5-C7)',
   },
-  'anconeus': {
+  anconeus: {
     origin: 'Lateral epicondyle of humerus',
     insertion: 'Lateral surface of olecranon and posterior proximal ulna',
     action: 'Assists triceps in elbow extension; stabilizes elbow joint',
@@ -681,7 +541,7 @@ const ANATOMY_DB = {
   },
 
   // ─── FOREARM ───
-  'brachioradialis': {
+  brachioradialis: {
     origin: 'Lateral supracondylar ridge of humerus',
     insertion: 'Lateral surface of distal radius (styloid process)',
     action: 'Flexion of forearm; assists pronation and supination to neutral',
@@ -699,7 +559,7 @@ const ANATOMY_DB = {
     action: 'Pronation of forearm (primary pronator)',
     innervation: 'Anterior interosseous nerve (C8, T1)',
   },
-  'supinator': {
+  supinator: {
     origin: 'Lateral epicondyle, radial collateral ligament, supinator crest of ulna',
     insertion: 'Lateral, posterior, and anterior surfaces of proximal radius',
     action: 'Supination of forearm',
@@ -800,13 +660,15 @@ const ANATOMY_DB = {
   'external oblique': {
     origin: 'External surfaces of ribs 5-12',
     insertion: 'Linea alba, pubic tubercle, anterior iliac crest',
-    action: 'Bilateral: flexion of trunk, compression of abdomen. Unilateral: contralateral rotation, ipsilateral lateral flexion',
+    action:
+      'Bilateral: flexion of trunk, compression of abdomen. Unilateral: contralateral rotation, ipsilateral lateral flexion',
     innervation: 'Intercostal nerves T7-T12, iliohypogastric and ilioinguinal nerves',
   },
   'internal oblique': {
     origin: 'Thoracolumbar fascia, iliac crest, lateral inguinal ligament',
     insertion: 'Inferior borders of ribs 10-12, linea alba, pubic crest',
-    action: 'Bilateral: flexion of trunk, compression of abdomen. Unilateral: ipsilateral rotation and lateral flexion',
+    action:
+      'Bilateral: flexion of trunk, compression of abdomen. Unilateral: ipsilateral rotation and lateral flexion',
     innervation: 'Intercostal nerves T7-T12, iliohypogastric and ilioinguinal nerves (L1)',
   },
   'rectus abdominis': {
@@ -816,15 +678,17 @@ const ANATOMY_DB = {
     innervation: 'Intercostal nerves T7-T12',
   },
   'transversus abdominis': {
-    origin: 'Internal surfaces of costal cartilages 7-12, thoracolumbar fascia, iliac crest, lateral inguinal ligament',
+    origin:
+      'Internal surfaces of costal cartilages 7-12, thoracolumbar fascia, iliac crest, lateral inguinal ligament',
     insertion: 'Linea alba, pubic crest, pectineal line',
     action: 'Compression of abdomen; core stabilization; increases intra-abdominal pressure',
     innervation: 'Intercostal nerves T7-T12, iliohypogastric and ilioinguinal nerves (L1)',
   },
 
   // ─── TRUNK ───
-  'diaphragm': {
-    origin: 'Xiphoid process, costal cartilages 7-12, L1-L3 vertebral bodies, medial/lateral arcuate ligaments',
+  diaphragm: {
+    origin:
+      'Xiphoid process, costal cartilages 7-12, L1-L3 vertebral bodies, medial/lateral arcuate ligaments',
     insertion: 'Central tendon',
     action: 'Primary muscle of respiration; contraction increases thoracic volume',
     innervation: 'Phrenic nerve (C3, C4, C5)',
@@ -873,7 +737,7 @@ const ANATOMY_DB = {
     action: 'Abduction and medial rotation of hip',
     innervation: 'Superior gluteal nerve (L4, L5, S1)',
   },
-  'piriformis': {
+  piriformis: {
     origin: 'Anterior surface of sacrum (S2-S4)',
     insertion: 'Superior border of greater trochanter',
     action: 'Lateral rotation, abduction of flexed hip; stabilizes hip joint',
@@ -891,7 +755,7 @@ const ANATOMY_DB = {
     action: 'Lateral rotation of hip',
     innervation: 'Posterior branch of obturator nerve (L3, L4)',
   },
-  'iliacus': {
+  iliacus: {
     origin: 'Iliac fossa, ala of sacrum',
     insertion: 'Lesser trochanter of femur (with psoas major)',
     action: 'Flexion of hip',
@@ -927,31 +791,31 @@ const ANATOMY_DB = {
     action: 'Lateral rotation of hip; abduction of flexed hip',
     innervation: 'Nerve to quadratus femoris (L5, S1, S2)',
   },
-  'pectineus': {
+  pectineus: {
     origin: 'Pectineal line of pubis (between pubic tubercle and iliopubic eminence)',
     insertion: 'Pectineal line of femur (between lesser trochanter and linea aspera)',
     action: 'Adduction and flexion of hip; assists medial rotation',
     innervation: 'Femoral nerve (L2, L3), sometimes obturator nerve',
   },
-  'coccygeus': {
+  coccygeus: {
     origin: 'Ischial spine and sacrospinous ligament',
     insertion: 'Inferior sacrum and coccyx',
     action: 'Supports pelvic floor; flexes coccyx; assists in pelvic organ support',
     innervation: 'Branches of S4-S5 spinal nerves',
   },
-  'iliococcygeus': {
+  iliococcygeus: {
     origin: 'Tendinous arch of levator ani (obturator fascia) and ischial spine',
     insertion: 'Coccyx and anococcygeal raphe',
     action: 'Supports pelvic viscera; elevates pelvic floor',
     innervation: 'Branches of S3-S4 via nerve to levator ani',
   },
-  'pubococcygeus': {
+  pubococcygeus: {
     origin: 'Posterior surface of pubic body and anterior tendinous arch',
     insertion: 'Anococcygeal raphe and coccyx',
     action: 'Supports pelvic viscera; constricts lower rectum and vagina',
     innervation: 'Branches of S3-S4 via nerve to levator ani',
   },
-  'puborectalis': {
+  puborectalis: {
     origin: 'Posterior surface of pubic body',
     insertion: 'Forms a sling around the anorectal junction',
     action: 'Maintains anorectal angle; essential for fecal continence',
@@ -995,25 +859,25 @@ const ANATOMY_DB = {
     action: 'Flexion of knee; extension and lateral rotation of hip (long head)',
     innervation: 'Long head: tibial division. Short head: common fibular division of sciatic nerve',
   },
-  'semitendinosus': {
+  semitendinosus: {
     origin: 'Ischial tuberosity',
     insertion: 'Medial surface of proximal tibia (pes anserinus)',
     action: 'Flexion of knee; extension and medial rotation of hip',
     innervation: 'Tibial division of sciatic nerve (L5, S1, S2)',
   },
-  'semimembranosus': {
+  semimembranosus: {
     origin: 'Ischial tuberosity',
     insertion: 'Posterior medial condyle of tibia',
     action: 'Flexion of knee; extension and medial rotation of hip',
     innervation: 'Tibial division of sciatic nerve (L5, S1, S2)',
   },
-  'sartorius': {
+  sartorius: {
     origin: 'Anterior superior iliac spine (ASIS)',
     insertion: 'Medial surface of proximal tibia (pes anserinus)',
     action: 'Flexion, abduction, and lateral rotation of hip; flexion of knee',
     innervation: 'Femoral nerve (L2, L3)',
   },
-  'gracilis': {
+  gracilis: {
     origin: 'Body and inferior ramus of pubis',
     insertion: 'Medial surface of proximal tibia (pes anserinus)',
     action: 'Adduction of hip; flexion and medial rotation of knee',
@@ -1047,17 +911,18 @@ const ANATOMY_DB = {
     origin: 'Tensor fasciae latae and gluteus maximus (iliac crest, anterior superior iliac spine)',
     insertion: "Gerdy's tubercle on the lateral condyle of tibia",
     action: 'Stabilizes the knee in extension; assists abduction of hip; lateral stabilizer during gait',
-    notes: 'Thick band of deep fascia running along lateral thigh; common source of IT band syndrome in runners',
+    notes:
+      'Thick band of deep fascia running along lateral thigh; common source of IT band syndrome in runners',
   },
 
   // ─── LOWER LEG ───
-  'gastrocnemius': {
+  gastrocnemius: {
     origin: 'Medial head: medial condyle of femur. Lateral head: lateral condyle of femur',
     insertion: 'Calcaneus via calcaneal (Achilles) tendon',
     action: 'Plantarflexion of ankle; assists flexion of knee',
     innervation: 'Tibial nerve (S1, S2)',
   },
-  'soleus': {
+  soleus: {
     origin: 'Posterior surface of head and upper quarter of fibula; soleal line and middle third of tibia',
     insertion: 'Calcaneus via calcaneal (Achilles) tendon',
     action: 'Plantarflexion of ankle (especially during walking/standing)',
@@ -1093,13 +958,13 @@ const ANATOMY_DB = {
     action: 'Dorsiflexion and eversion of foot',
     innervation: 'Deep fibular nerve (L5, S1)',
   },
-  'plantaris': {
+  plantaris: {
     origin: 'Lateral supracondylar ridge of femur, oblique popliteal ligament',
     insertion: 'Calcaneus (medial to calcaneal tendon)',
     action: 'Weak plantarflexion of ankle; weak flexion of knee',
     innervation: 'Tibial nerve (S1, S2)',
   },
-  'popliteus': {
+  popliteus: {
     origin: 'Lateral condyle of femur, lateral meniscus',
     insertion: 'Posterior surface of proximal tibia (above soleal line)',
     action: '"Unlocks" knee by medially rotating tibia; flexion of knee',
@@ -1211,7 +1076,7 @@ const ANATOMY_DB = {
  * Look up anatomical info for a given mesh name.
  * Tries to match against the ANATOMY_DB using fuzzy keyword matching.
  */
-export function getMuscleInfo(meshName) {
+export function getMuscleInfo(meshName: string): AnatomyInfo {
   const nameLower = meshName.toLowerCase();
 
   // Try exact match first (after removing left/right prefix)
@@ -1235,16 +1100,9 @@ export function getMuscleInfo(meshName) {
   // Try matching substrings
   for (const [key, info] of Object.entries(ANATOMY_DB)) {
     const keyWords = key.split(' ');
-    if (keyWords.length >= 2 && keyWords.every(w => nameLower.includes(w))) {
+    if (keyWords.length >= 2 && keyWords.every((w) => nameLower.includes(w))) {
       return info;
     }
   }
-
-  // Fallback: generate basic info from name
-  return {
-    origin: 'See anatomical references',
-    insertion: 'See anatomical references',
-    action: 'See anatomical references',
-    innervation: 'See anatomical references',
-  };
+  return UNKNOWN_INFO;
 }

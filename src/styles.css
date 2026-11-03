@@ -17,7 +17,11 @@
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
   background: var(--bg-dark);
   color: var(--text);
   overflow: hidden;
@@ -107,7 +111,7 @@ body {
   font-weight: 600;
 }
 
-.control-group input[type="text"] {
+.control-group input[type='text'] {
   width: 100%;
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.06);
@@ -119,7 +123,7 @@ body {
   transition: border-color 0.2s;
 }
 
-.control-group input[type="text"]:focus {
+.control-group input[type='text']:focus {
   border-color: var(--accent);
 }
 
@@ -209,18 +213,18 @@ body {
   color: var(--text-muted);
 }
 
-.toggle input[type="checkbox"] {
+.toggle input[type='checkbox'] {
   accent-color: var(--accent);
   width: 14px;
   height: 14px;
 }
 
-.toggle input[type="checkbox"]:checked + span {
+.toggle input[type='checkbox']:checked + span {
   color: var(--text);
 }
 
 /* Range slider */
-input[type="range"] {
+input[type='range'] {
   -webkit-appearance: none;
   width: 100%;
   height: 4px;
@@ -229,7 +233,7 @@ input[type="range"] {
   outline: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 14px;
   height: 14px;
@@ -249,7 +253,9 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 12px;
   padding: 20px;
   backdrop-filter: blur(12px);
-  transition: opacity 0.3s, transform 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
 }
 
 #info-panel.hidden {
@@ -455,7 +461,9 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 12px;
   padding: 12px;
   backdrop-filter: blur(12px);
-  transition: opacity 0.3s, transform 0.3s;
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -630,4 +638,116 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 10px;
   color: rgba(255, 255, 255, 0.25);
   line-height: 1.5;
+}
+
+/* ── Phase 0 additions ── */
+#info-details .muted {
+  font-style: italic;
+}
+
+.badge.bone {
+  background: rgba(242, 235, 217, 0.12);
+  color: #f2ebd9;
+  border: 1px solid rgba(242, 235, 217, 0.3);
+}
+
+.group-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.button-row + .button-row {
+  margin-top: 4px;
+}
+
+#search-results .search-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#search-results .search-item.active {
+  background: rgba(233, 69, 96, 0.2);
+}
+
+.search-kind {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.color-swatch {
+  padding: 0;
+}
+
+#info-actions {
+  display: flex;
+  gap: 6px;
+}
+
+#info-actions button {
+  flex: 1;
+}
+
+#btn-focus-part {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+#btn-focus-part:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+input[type='search'] {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+}
+
+input[type='search']:focus {
+  border-color: var(--accent);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--accent-light);
+  outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+  #controls-panel {
+    width: calc(100vw - 32px);
+    max-height: 38vh;
+  }
+
+  #info-panel {
+    top: auto;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: 45vh;
+    overflow-y: auto;
+  }
+
+  #instructions {
+    display: none;
+  }
 }

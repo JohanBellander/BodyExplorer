@@ -4,13 +4,23 @@ node_modules/
 # Build output
 dist/
 
-# Raw anatomical data (too large for git — must be downloaded separately)
-# See raw_models/README for download instructions
+# Test output
+test-results/
+playwright-report/
+
+# Raw anatomical source data (too large for git). See raw_models/README.md.
 raw_models/bp3d/
 raw_models/bp3d.zip
 raw_models/z-anatomy/
 raw_models/z_anatomy_exports/
 raw_models/.venv/
+raw_models/build/
+__pycache__/
+
+# Agents
+.claude/settings.local.json
+.claude/worktrees/
+.agent/
 
 # OS files
 .DS_Store

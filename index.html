@@ -1,111 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Body Explorer - 3D Muscular System</title>
-  <link rel="stylesheet" href="/src/styles.css" />
-</head>
-<body>
-  <div id="app">
-    <canvas id="canvas3d"></canvas>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive 3D explorer of the human muscular system and skeleton." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Body Explorer - 3D Muscular System</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="canvas3d" aria-label="3D anatomy view"></canvas>
 
-    <!-- Loading overlay -->
-    <div id="loading-overlay">
-      <div id="loading-content">
-        <h2>Body Explorer</h2>
-        <p id="loading-text">Loading anatomy model... 0%</p>
-        <div id="loading-bar-track">
-          <div id="loading-bar"></div>
+      <div id="loading-overlay" role="status" aria-live="polite">
+        <div id="loading-content">
+          <h2>Body Explorer</h2>
+          <p id="loading-text">Loading anatomy model... 0%</p>
+          <div id="loading-bar-track"><div id="loading-bar"></div></div>
+          <p class="loading-credit">
+            BodyParts3D, &copy; The Database Center for Life Science<br />licensed under CC Attribution-Share
+            Alike 2.1 Japan
+          </p>
+          <p class="loading-credit">Z-Anatomy by Gauthier Kervyn<br />licensed under CC BY-SA 4.0</p>
         </div>
-        <p class="loading-credit">BodyParts3D, &copy; The Database Center for Life Science<br/>licensed under CC Attribution-Share Alike 2.1 Japan</p>
-        <p class="loading-credit">Z-Anatomy by Gauthier Kervyn<br/>licensed under CC BY-SA 4.0</p>
+      </div>
+
+      <div id="ui-overlay">
+        <header id="top-bar">
+          <h1>Body Explorer</h1>
+          <p class="subtitle">Interactive 3D Muscular System</p>
+        </header>
+
+        <aside id="controls-panel" aria-label="Controls">
+          <div class="control-group">
+            <label for="search">Search</label>
+            <input
+              type="search"
+              id="search"
+              placeholder="e.g. Biceps, Deltoid, Femur..."
+              autocomplete="off"
+              role="combobox"
+              aria-controls="search-results"
+              aria-expanded="false"
+            />
+            <div id="search-results" role="listbox"></div>
+          </div>
+
+          <div class="control-group">
+            <label>Muscle Groups</label>
+            <div id="muscle-group-filters"></div>
+          </div>
+
+          <div class="control-group">
+            <label>View</label>
+            <div class="button-row">
+              <button id="btn-front" title="Front view (1)">Front</button>
+              <button id="btn-back" title="Back view (2)">Back</button>
+              <button id="btn-left" title="Left side view (3)">Left</button>
+              <button id="btn-right" title="Right side view (4)">Right</button>
+            </div>
+            <div class="button-row">
+              <button id="btn-reset" title="Reset view and all settings (R)">Reset everything</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label>Display</label>
+            <div class="toggle-row">
+              <label class="toggle">
+                <input type="checkbox" id="toggle-skeleton" checked />
+                <span>Show Skeleton</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-tendons" checked />
+                <span>Show Tendons</span>
+              </label>
+              <label class="toggle">
+                <input type="checkbox" id="toggle-group-colors" />
+                <span>Colour by muscle group</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="muscle-opacity-slider">Muscle Opacity</label>
+            <input type="range" id="muscle-opacity-slider" min="0.1" max="1" step="0.05" value="1" />
+          </div>
+
+          <div class="control-group">
+            <label for="skeleton-opacity-slider">Skeleton Opacity</label>
+            <input type="range" id="skeleton-opacity-slider" min="0.1" max="1" step="0.05" value="0.6" />
+          </div>
+        </aside>
+
+        <section id="info-panel" class="hidden" aria-live="polite" aria-label="Selected structure">
+          <button id="info-close" aria-label="Close">&times;</button>
+          <h2 id="info-name"></h2>
+          <span id="info-type" class="badge"></span>
+          <div id="info-details"></div>
+          <div id="info-links"></div>
+          <div id="info-color-picker">
+            <label>Highlight Color</label>
+            <div id="color-swatches"></div>
+            <button id="btn-clear-color" title="Remove custom highlight color">Clear</button>
+          </div>
+          <div id="info-actions">
+            <button id="btn-focus-part" title="Zoom to this part (F)">Zoom To</button>
+            <button id="btn-hide-part" title="Hide this part (H)">Hide This Part</button>
+          </div>
+        </section>
+
+        <section id="hidden-panel" class="hidden" aria-label="Hidden parts">
+          <div class="hidden-panel-header">
+            <label>Hidden Parts (<span id="hidden-count">0</span>)</label>
+            <button id="btn-show-all" title="Restore all hidden parts">Show All</button>
+          </div>
+          <ul id="hidden-list"></ul>
+        </section>
+
+        <footer id="instructions">
+          <p>
+            Drag to rotate &bull; Scroll / pinch to zoom &bull; Right-drag / two-finger drag to pan &bull;
+            Click a part for info &bull; Esc to deselect
+          </p>
+        </footer>
       </div>
     </div>
 
-    <div id="ui-overlay">
-      <header id="top-bar">
-        <h1>Body Explorer</h1>
-        <p class="subtitle">Interactive 3D Muscular System</p>
-      </header>
-
-      <div id="controls-panel">
-        <div class="control-group">
-          <label for="search">Search Muscle</label>
-          <input type="text" id="search" placeholder="e.g. Biceps, Deltoid..." autocomplete="off" />
-          <div id="search-results"></div>
-        </div>
-
-        <div class="control-group">
-          <label>Muscle Groups</label>
-          <div id="muscle-group-filters"></div>
-        </div>
-
-        <div class="control-group">
-          <label>View</label>
-          <div class="button-row">
-            <button id="btn-front" title="Front view">Front</button>
-            <button id="btn-back" title="Back view">Back</button>
-            <button id="btn-side" title="Side view">Side</button>
-            <button id="btn-reset" title="Reset view">Reset</button>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Display</label>
-          <div class="toggle-row">
-            <label class="toggle">
-              <input type="checkbox" id="toggle-skeleton" checked />
-              <span>Show Skeleton</span>
-            </label>
-            <label class="toggle">
-              <input type="checkbox" id="toggle-tendons" checked />
-              <span>Show Tendons</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Muscle Transparency</label>
-          <input type="range" id="muscle-opacity-slider" min="0.1" max="1" step="0.05" value="1" />
-        </div>
-
-        <div class="control-group">
-          <label>Skeleton Transparency</label>
-          <input type="range" id="skeleton-opacity-slider" min="0.1" max="1" step="0.05" value="0.6" />
-        </div>
-      </div>
-
-      <div id="info-panel" class="hidden">
-        <button id="info-close">&times;</button>
-        <h2 id="info-name"></h2>
-        <span id="info-type" class="badge"></span>
-        <div id="info-details"></div>
-        <div id="info-links"></div>
-        <div id="info-color-picker">
-          <label>Highlight Color</label>
-          <div id="color-swatches"></div>
-          <button id="btn-clear-color" title="Remove custom highlight color">Clear</button>
-        </div>
-        <div id="info-actions">
-          <button id="btn-hide-part" title="Hide this part from the model">Hide This Part</button>
-        </div>
-      </div>
-
-      <div id="hidden-panel" class="hidden">
-        <div class="hidden-panel-header">
-          <label>Hidden Parts (<span id="hidden-count">0</span>)</label>
-          <button id="btn-show-all" title="Restore all hidden parts">Show All</button>
-        </div>
-        <ul id="hidden-list"></ul>
-      </div>
-
-      <div id="instructions">
-        <p>🖱 Left-click + drag to rotate &bull; Scroll to zoom &bull; Right-click + drag to pan &bull; Click a muscle for info</p>
-      </div>
-    </div>
-  </div>
-
-  <script type="module" src="/src/main.js"></script>
-</body>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>
