@@ -48,7 +48,8 @@ pick, search, filter, hide and colour structures.
   self-hosted, the app is served from `/`.
 
 ## Gotchas
-- `BASE_PATH` controls Vite's `base`; asset URLs must use `import.meta.env.BASE_URL`.
+- `BASE_PATH` controls Vite's `base`; asset URLs must use `import.meta.env.BASE_URL`. Git Bash rewrites
+  `BASE_PATH=/BodyExplorer/` into a Windows path; set it from PowerShell (CI on Linux is fine).
 - GLTFLoader turns spaces in node names into underscores; use `normalizeMeshName()` before matching names.
 - BodyParts3D axes are X right-left, Y front-back, Z up (mm); `loadBody` converts to Three.js Y-up scene units.
 - GLBs are quantized (KHR_mesh_quantization); `loadBody` expands attributes to Float32 before baking transforms,
